@@ -1,0 +1,109 @@
+SearchTerm
+-
+SearchTermID PK int
+Term string
+ZipCode string
+CreatedDate datetime
+LastModified datetime
+
+SearchTermStorePrice
+-
+SearchTermStorePriceID PK int
+SearchTermID int FK >- SearchTerm.SearchTermID
+StorePriceID int FK >- StorePrice.StorePriceID
+CreatedDate datetime
+LastModified datetime
+
+GroceryList
+-
+GroceryListID PK int
+Name string
+UserID int FK >- User.UserID
+CreatedDate datetime
+LastModified datetime
+
+GroceryListSearchTerm
+-
+GroceryListSearchTermID PK int
+GroceryListID int FK >- GroceryList.GroceryListID
+SearchTermID int FK >- SearchTerm.SearchTermID
+Quantity int
+CreatedDate datetime
+LastModified datetime
+
+Chain
+-
+ChainID PK int
+Name string UNIQUE
+CreatedDate datetime
+LastModified datetime
+
+StoreLocation
+-
+StoreLocationID PK int
+ChainID int FK >- Chain.ChainID
+StoreAPIRef string
+Address string
+ZipCode string
+CreatedDate datetime
+LastModified datetime
+
+StorePrice
+-
+StorePriceID PK int
+ProductID int FK >- Product.ProductID
+StoreLocationID int FK >- StoreLocation.StoreLocationID
+Price float
+CreatedDate datetime
+LastModified datetime
+
+Product
+-
+ProductID PK int
+Name string
+UPC string UNIQUE
+CreatedDate datetime
+LastModified datetime
+
+Attribute
+-
+AttributeID PK int
+Description string UNIQUE
+CreatedDate datetime
+LastModified datetime
+
+ProductAttribute
+-
+ProductAttributeID PK int
+ProductID int FK >- Product.ProductID
+AttributeID int FK >- Attribute.AttributeID
+CreatedDate datetime
+LastModified datetime
+
+User
+-
+UserID PK int
+Username string UNIQUE
+Password text
+Email string UNIQUE
+CreatedDate datetime
+LastModified datetime
+
+UserPreference
+-
+PreferenceID PK int
+UserID int FK >- User.UserID
+AppSetting string
+DietaryPreference string
+ZipCode string
+MaxTravelDistance float
+CreatedDate datetime
+LastModified datetime
+
+UserProductFavorite
+-
+FavoriteID PK int
+UserID int FK >- User.UserID
+ProductID int FK >- Product.ProductID
+CreatedDate datetime
+LastModified datetime
