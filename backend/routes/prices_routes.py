@@ -3,7 +3,7 @@ from flask_bcrypt import generate_password_hash, check_password_hash
 from utilities.prices_utilities import Queue
 from database import db
 import time
-from services.sprouts import fetch_sprouts_prices
+from services.sprouts import fetch_sprouts_price
 from services.food4less import fetch_food4less_prices
 
 
@@ -35,7 +35,7 @@ def process_queue():
     while not pricing_queue.is_empty():
         item_name = pricing_queue.dequeue()
         prices = {
-            **fetch_sprouts_prices([item_name]),
+            **fetch_sprouts_price(item_name),
             **fetch_food4less_prices([item_name])
         }
         print(f'Fetched prices for {item_name}: {prices}')
