@@ -13,7 +13,7 @@ from backend.routes import prices_bp
 
 # Initializing the Flask app and configuring CORS
 
-app = Flask(__name__, static_folder="frontend/build", template_folder="frontend/build")
+app = Flask(__name__, static_folder="../frontend/build", static_url_path='/')
 CORS(app)
 
 
@@ -54,6 +54,9 @@ def page_not_autherized(e):
 def method_not_allowed(e):
     app.logger.error("405 error encountered.")
     return '405', 405
+@app.route('/<path:path>')
+def catch_all(path):
+    return app.send_static_file('index.html')
 
 if __name__ == '__main__':
     app.run(debug=debug_mode)
