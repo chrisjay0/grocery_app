@@ -8,6 +8,6 @@ from decouple import config
 db = SQLAlchemy()
 
 # Initializing the database engine
-
-engine = create_engine(config('DATABASE_URL'), echo=True)
+database_url = config('DATABASE_URL').replace("postgres://", "postgresql://")
+engine = create_engine(database_url, echo=True)
 Session = sessionmaker(bind=engine)
