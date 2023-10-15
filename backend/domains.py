@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
-from .models import Search
+from backend.models import Search
 
 # Domain dataclass for Product model
 @dataclass

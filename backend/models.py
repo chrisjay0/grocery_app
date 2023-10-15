@@ -1,5 +1,5 @@
 from datetime import datetime
-from .database import db
+from backend.database import db
 
 # Search model
 class Search(db.Model):

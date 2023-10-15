@@ -7,9 +7,9 @@ from flask import Flask,send_from_directory, render_template
 from flask_cors import CORS
 from flask_migrate import Migrate
 
-from .database import db
-from .models import Search, Product, Store, StorePrice
-from .routes import prices_bp
+from backend.database import db
+from backend.models import Search, Product, Store, StorePrice
+from backend.routes import prices_bp
 
 # Initializing the Flask app and configuring CORS
 
