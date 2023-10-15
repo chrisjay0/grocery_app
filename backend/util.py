@@ -5,10 +5,10 @@ from sqlalchemy.exc import SQLAlchemyError
 import logging
 import requests
 
-from models import Search as SearchModel, StorePrice, Product, Store
-from domains import SearchDomain
-from database import db
-from services import fetch_best_prices
+from .models import Search as SearchModel, StorePrice, Product, Store
+from .domains import SearchDomain
+from .database import db
+from .services import fetch_best_prices
 
 
 def get_youngest_search(term: str, zip_code: str) -> SearchDomain | None:

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from util import get_prices
+from .util import get_prices
 
 prices_bp = Blueprint('prices_bp', __name__)
 
