@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TextField } from '@mui/material';
-import axios from 'axios';
 
-const ItemInput = ({ currentItem, onItemChange, onAddItem }) => {
-
+const ItemInput = ({ currentItem, onItemChange, onAddItem, currentZip, onZipChange }) => {
     const handleAddItem = async () => {
         if (currentItem.trim()) {
             onAddItem(currentItem);
@@ -24,9 +22,16 @@ const ItemInput = ({ currentItem, onItemChange, onAddItem }) => {
                     }
                 }}
             />
+            <TextField 
+                label="Zip Code" 
+                variant="outlined" 
+                value={currentZip}
+                onChange={e => onZipChange(e.target.value)}
+                fullWidth
+                style={{ marginTop: '10px' }} // Add some margin for spacing
+            />
         </div>
     );
 };
-
 
 export default ItemInput;

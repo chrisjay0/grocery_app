@@ -4,23 +4,24 @@ import requests
 from typing import Dict, Union, List
 import time
 
-
 BASE_URL = 'https://api-ce.kroger.com/v1'
 CLIENT_ID = config('KROGER_ID')
 API_KEY = config('KROGER_SECRET')
 
 TOKEN_URL = 'https://api-ce.kroger.com/v1/connect/oauth2/token'
 TOKEN_EXPIRED = 24
-SCOPE = 'product.compact'  # Replace with the appropriate scope
+SCOPE = 'product.compact'
 
-NEARBY_DISTANCE = 5
-ITEM_LIMIT = 6
+NEARBY_DISTANCE = 35
+ITEM_LIMIT = 3
+STORE_LIMIT = 6
+
+DEFAULT_ZIP = '45052'
 
 token_cache = {
     'token': None,
     'timestamp': 0
 }
-
 
 def refresh_token():
     credentials = f"{CLIENT_ID}:{API_KEY}"
@@ -46,15 +47,30 @@ def is_token_valid():
     return age_in_minutes > TOKEN_EXPIRED
 
 
-def fetch_nearest_stores(zip_code: str, nearby_dist: int = NEARBY_DISTANCE) -> List[Dict]:
+def fetch_nearest_stores(zip_code: str = DEFAULT_ZIP, nearby_dist: int = NEARBY_DISTANCE) -> List[Dict]:
     if not is_token_valid():
         refresh_token()
+    
     headers = {
         'Authorization': f'Bearer {token_cache["token"]}',
         'Content-Type': 'application/json'
     }
-    response = requests.get(f'{BASE_URL}/locations?filter.zipCode.near={zip_code}&filter.radiusInMiles={nearby_dist}', headers=headers)
-    return response.json()['data']
+    
+    response = requests.get(f'{BASE_URL}/locations?filter.zipCode.near={zip_code}&filter.radiusInMiles={nearby_dist}&filter.limit={STORE_LIMIT}', headers=headers)
+    data = response.json()['data']
+    
+    # Filter out stores with the chain "RALPHS"
+    non_ralphs_stores = [store for store in data if store.get('chain') != 'RALPHS']
+    
+    # Check if non_ralphs_stores is empty
+    if not non_ralphs_stores:
+        # Log a message or handle as needed
+        print("No non-Ralphs stores found!")
+        return []
+
+    # Return only up to the first three non-Ralphs stores
+    return non_ralphs_stores[:3]
+
 
 
 def fetch_products_by_term(term: str, store_id: str, limit: int = ITEM_LIMIT) -> List[Dict]:
@@ -92,18 +108,18 @@ def fetch_products_for_ralphs(term: str, store_id: str, limit: int = ITEM_LIMIT)
  
 
 def parse_unique_stores(data: List[Dict]) -> List[Dict]:
-    seen_chains = set()
-    unique_stores = [] 
+    # seen_chains = set()
+    # unique_stores = [] 
 
-    for store in data:
-        chain = store['chain']
-        if chain not in seen_chains:
-            seen_chains.add(chain)
-            unique_stores.append(store)
+    # for store in data:
+    #     chain = store['chain']
+    #     if chain not in seen_chains:
+    #         seen_chains.add(chain)
+    #         unique_stores.append(store)
 
     parsed_unique_stores = []
     
-    for store in unique_stores:
+    for store in data:
         parsed_store = {}
         parsed_store['api_reference'] = store['locationId']
         parsed_store['name'] = store['name']
@@ -114,26 +130,55 @@ def parse_unique_stores(data: List[Dict]) -> List[Dict]:
         
     return parsed_unique_stores
         
-def fetch_nearest_unique_stores(zip_code) -> List[Dict]:
+def fetch_nearest_unique_stores(zip_code: str = DEFAULT_ZIP) -> List[Dict]:
     stores = fetch_nearest_stores(zip_code)
     return parse_unique_stores(stores)
 
-def fetch_best_prices(term: str, zip_code: str) -> List[Dict]:
+def parse_product_data(data: Dict) -> Dict:
+    product_data = {}
+    product_data['name'] = data['description']
+    product_data['price'] = data['items'][0]['price']['regular']
+    product_data['UPC'] = data['upc']
+    return product_data
+
+def fetch_best_prices(term: str, zip_code: str ) -> List[Dict]:
+    """Retrieves items from the closest stores, finds the cheapest, and returns a parsed list of dicts.
+
+    Args:
+        term (str): the search term for the item being searched
+        zip_code (str): The zip code to search near.
+
+    Returns:
+        List[Dict]: A list of dictionaries each containing a specific store and the cheapest product.
+    """
     stores = fetch_nearest_unique_stores(zip_code)
     prices = []
-    for store in stores:
-        if store['chain'] == 'RALPHS':
-            products = fetch_products_for_ralphs(term, store['api_reference'])
-        else:
-            products = fetch_products_by_term(term, store['api_reference'])
-        best_deal = products[0]
-        for product in products:
-            product_price = product['items'][0].get('price', {}).get('regular', 9999)
-            best_deal_price = best_deal['items'][0].get('price', {}).get('regular', 9999)
-            if product_price < best_deal_price:
-                best_deal = product
-        prices.append({'store': store, 'product': best_deal})
-        
-    return prices
 
-print(fetch_best_prices('tofu', '90001'))
+    for store in stores:
+        products = fetch_products_for_ralphs(term, store['api_reference']) if store['chain'] == 'RALPHS' else fetch_products_by_term(term, store['api_reference'])
+        
+        # Ensure products is a list and not empty
+        if not products or not isinstance(products, list):
+            continue
+
+        best_deal = None
+        best_deal_price = float('inf')  # Set an initial high value for comparison
+
+        for product in products:
+            # Guard against potential missing keys or data structures
+            items = product.get('items', [])
+            if not items:
+                continue
+            
+            current_price = items[0].get('price', {}).get('regular', float('inf'))
+            
+            if current_price < best_deal_price:
+                best_deal = product
+                best_deal_price = current_price
+        
+        # Ensure we found a valid best deal before appending
+        if best_deal and best_deal_price < float('inf'):
+            parsed_product = parse_product_data(best_deal)
+            prices.append({'store': store, 'product': parsed_product})
+
+    return prices
