@@ -53,7 +53,7 @@ const App = () => {
       ]);
       setCurrentItem("");
 
-      const fetchPrice = axios.post(`${backendUrl}/prices`, {
+      const fetchPrice = axios.post("/prices", {
         item_name: currentItem,
         zip_code: currentZip,
       });

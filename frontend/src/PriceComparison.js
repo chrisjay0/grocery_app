@@ -36,7 +36,7 @@ const PriceComparison = ({ items, zip_code, totalItems, loading}) => {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/prices`,{
+        const response = await axios.get("/prices",{
           params: {
             item_names: items.map((item) => item.name).join(",") ,
             zip_code: zip_code

@@ -38,5 +38,4 @@ def retrieve_prices():
         if item_prices:
             all_prices[item] = item_prices
 
-    print(jsonify(all_prices).data)
     return jsonify(all_prices), 200

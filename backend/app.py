@@ -1,7 +1,9 @@
 # Importing necessary libraries
+import os
+import sys
 import logging
 from decouple import config
-from flask import Flask
+from flask import Flask,send_from_directory, render_template
 from flask_cors import CORS
 from flask_migrate import Migrate
 
@@ -10,14 +12,19 @@ from models import Search, Product, Store, StorePrice
 from routes import prices_bp
 
 # Initializing the Flask app and configuring CORS
-app = Flask(__name__)
+
+app = Flask(__name__, static_folder="frontend/build", template_folder="frontend/build")
 CORS(app)
 
+
 # Setting up logging
-logging.basicConfig(filename='flask_app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# setting debug to environmental variable
+debug_mode = config('FLASK_DEBUG', default='False', cast=bool)
 
 # App configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL').replace("postgres://", "postgresql://")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Suppresses a warning and potential performance hit
 app.config['SECRET_KEY'] = config('SECRET_KEY', default='dev_key')
 
@@ -28,9 +35,14 @@ migrate = Migrate(app, db)
 # Registering the blueprint
 app.register_blueprint(prices_bp)
 
-@app.route("/", methods=["GET", "POST"])
-def show_homepage():
-    return 'homepage'
+@app.route("/", defaults={"path": ""})
+
+@app.route("/<path:path>")
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + "/" + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, "index.html")
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -48,4 +60,4 @@ def method_not_allowed(e):
     return '405', 405
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=debug_mode)

@@ -6,6 +6,7 @@ charset-normalizer==3.3.0
 click==8.1.7
 Flask==3.0.0
 Flask-Bcrypt==1.0.1
+Flask-Cors==4.0.0
 Flask-DebugToolbar==0.13.1
 Flask-Migrate==4.0.5
 Flask-Modals==0.5.1
