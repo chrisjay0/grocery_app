@@ -36,13 +36,9 @@ migrate = Migrate(app, db)
 app.register_blueprint(prices_bp)
 
 @app.route("/", defaults={"path": ""})
-
 @app.route("/<path:path>")
 def serve(path):
-    if path != "" and os.path.exists(app.static_folder + "/" + path):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, "index.html")
+    return send_from_directory(app.static_folder, "index.html")
 
 @app.errorhandler(404)
 def page_not_found(e):
