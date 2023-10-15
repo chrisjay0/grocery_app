@@ -3,6 +3,8 @@ import { Grid } from "@mui/material";
 import StoreCard from "./StoreCard";
 import axios from "axios";
 
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
 const transformData = (backendData) => {
   const storeMap = {};
 
@@ -34,7 +36,7 @@ const PriceComparison = ({ items, zip_code, totalItems, loading}) => {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:5000/prices", {
+        const response = await axios.get(`${backendUrl}/prices`,{
           params: {
             item_names: items.map((item) => item.name).join(",") ,
             zip_code: zip_code

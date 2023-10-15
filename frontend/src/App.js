@@ -16,6 +16,7 @@ import Snackbar from "@mui/material/Snackbar";
 import ItemInput from "./ItemInput";
 import PriceComparison from "./PriceComparison";
 import axios from "axios";
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const App = () => {
   const [loading, setLoading] = useState("idle");
@@ -52,7 +53,7 @@ const App = () => {
       ]);
       setCurrentItem("");
 
-      const fetchPrice = axios.post("http://127.0.0.1:5000/prices", {
+      const fetchPrice = axios.post(`${backendUrl}/prices`, {
         item_name: currentItem,
         zip_code: currentZip,
       });
