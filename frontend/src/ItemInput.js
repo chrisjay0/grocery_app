@@ -1,7 +1,7 @@
 import React from 'react';
 import { TextField } from '@mui/material';
 
-const ItemInput = ({ currentItem, onItemChange, onAddItem, currentZip, onZipChange }) => {
+const ItemInput = ({ currentItem, onItemChange, onAddItem, currentZip, onZipChange, showComparison}) => {
     const handleAddItem = async () => {
         if (currentItem.trim()) {
             onAddItem(currentItem);
@@ -16,6 +16,7 @@ const ItemInput = ({ currentItem, onItemChange, onAddItem, currentZip, onZipChan
                 value={currentItem}
                 onChange={e => onItemChange(e.target.value)}
                 fullWidth
+                style={{ borderRadius:'px'}} 
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                         handleAddItem();
@@ -28,7 +29,8 @@ const ItemInput = ({ currentItem, onItemChange, onAddItem, currentZip, onZipChan
                 value={currentZip}
                 onChange={e => onZipChange(e.target.value)}
                 fullWidth
-                style={{ marginTop: '10px' }} // Add some margin for spacing
+                disabled={showComparison}
+                style={{ marginTop: '10px'}} // Add some margin for spacing
             />
         </div>
     );

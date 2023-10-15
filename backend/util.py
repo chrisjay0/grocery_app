@@ -235,8 +235,8 @@ def get_prices(term: str, zip_code: str) -> List[dict]:
 # from app import app
 # with app.app_context():
 
-#     print(get_prices('celery', '93401'))
-    # print(get_youngest_search('cereal', '90003'))
+#     print(get_prices('butter', '90001'))
+    # print(get_youngest_search('bread', '90001'))
     # print(fetch_db_prices_search())
     # print(save_search_data(search, results))
     # print(save_search_data(search, results))

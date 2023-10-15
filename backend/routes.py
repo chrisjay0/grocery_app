@@ -18,14 +18,14 @@ def add_to_pricing_queue():
     
     prices = get_prices(item_name, zip_code)
     if not prices:
-        return jsonify({'message': f'Prices for {item_name} could not be fetched'}), 500
+        return jsonify({'message': f'Prices for {item_name} could not be found'}), 404
 
     return jsonify(prices), 200
 
 @prices_bp.route('/prices', methods=['GET'])
 def retrieve_prices():
     item_names_str = request.args.get('item_names')
-    zip_code = request.args.get('zip_code', '45052')
+    zip_code = request.args.get('zip_code')
 
     if not item_names_str:
         return jsonify({'message': 'Item names are required'}), 400

@@ -6,35 +6,39 @@ import axios from "axios";
 const transformData = (backendData) => {
   const storeMap = {};
 
-  Object.values(backendData).flat().forEach(entry => {
-    const storeName = entry.store.name;
-    const productName = entry.product.name;
-    const price = entry.price;
+  Object.values(backendData)
+    .flat()
+    .forEach((entry) => {
+      const storeName = entry.store.name;
+      const productName = entry.product.name;
+      const price = entry.price;
 
-    if (!storeMap[storeName]) {
-      storeMap[storeName] = {
-        storeName,
-        totalPrice: 0,
-        items: [],
-      };
-    }
+      if (!storeMap[storeName]) {
+        storeMap[storeName] = {
+          storeName,
+          totalPrice: 0,
+          items: [],
+        };
+      }
 
-    storeMap[storeName].totalPrice += price;
-    storeMap[storeName].items.push({ name: productName, price });
-  });
+      storeMap[storeName].totalPrice += price;
+      storeMap[storeName].items.push({ name: productName, price });
+    });
 
   return Object.values(storeMap).sort((a, b) => a.totalPrice - b.totalPrice); // sort by total price
 };
 
-
-const PriceComparison = ({ items }) => {
+const PriceComparison = ({ items, zip_code, totalItems, loading}) => {
   const [storeData, setStoreData] = useState([]);
 
   useEffect(() => {
     const fetchPrices = async () => {
       try {
         const response = await axios.get("http://127.0.0.1:5000/prices", {
-          params: { item_names: items.map((item) => item.name).join(",") },
+          params: {
+            item_names: items.map((item) => item.name).join(",") ,
+            zip_code: zip_code
+          }
         });
         const backendData = response.data;
         console.log("Received data from API:", backendData);
@@ -63,7 +67,7 @@ const PriceComparison = ({ items }) => {
     };
 
     fetchPrices();
-  }, [items]);
+  }, [items, zip_code]);
 
   return (
     <Grid container direction="column" alignItems="center" spacing={3}>
@@ -74,6 +78,8 @@ const PriceComparison = ({ items }) => {
             items={data.items}
             totalPrice={data.totalPrice}
             isCheapest={index === 0}
+            totalItems={totalItems}
+            loading={loading}
           />
         </Grid>
       ))}
