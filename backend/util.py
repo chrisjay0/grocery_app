@@ -5,10 +5,10 @@ from sqlalchemy.exc import SQLAlchemyError
 import logging
 import requests
 
-from backend.models import Search as SearchModel, StorePrice, Product, Store
-from backend.domains import SearchDomain
-from backend.database import db
-from backend.services import fetch_best_prices
+from .models import Search as SearchModel, StorePrice, Product, Store
+from .domains import SearchDomain
+from .database import db
+from .services import fetch_best_prices
 
 
 def get_youngest_search(term: str, zip_code: str) -> SearchDomain | None:
@@ -166,6 +166,7 @@ def save_search_data(search_domain: SearchDomain, data: List[dict]) -> SearchDom
         return SearchDomain.from_orm(search_entry)
 
     except Exception as e:
+        print(f"Exception in save_search_data: {e}")
         print(e)
         session.rollback()
         return None
@@ -192,7 +193,10 @@ def get_prices(term: str, zip_code: str) -> List[dict]:
         # Check if a search found is fresh
         if search:
             day_old = datetime.now() - timedelta(days=1)
+            print(f'Found search: {search.updated_at} vs {day_old}')
             if search.updated_at > day_old:
+                
+                print(f'returning search fresh search')
                 return fetch_db_prices_search(search)
         
         # Stale or no search found, fetching from API
@@ -232,25 +236,3 @@ def get_prices(term: str, zip_code: str) -> List[dict]:
         logging.error(f"An unexpected error occurred while fetching prices for term: {term}, zip_code: {zip_code}. Error: {e}")
         return []
     
-# from app import app
-# with app.app_context():
-
-#     print(get_prices('butter', '90001'))
-    # print(get_youngest_search('bread', '90001'))
-    # print(fetch_db_prices_search())
-    # print(save_search_data(search, results))
-    # print(save_search_data(search, results))
-    # session = db.session
-    # search_m = SearchModel(Term='test search', ZipCode='86753')
-    # print(f'This is the search model: {search_m}')
-    # search_d = SearchDomain.from_orm(search_m)
-    # print(f'This is the search domain: {search_d}')
-
-
-# from app import app
-# with app.app_context():
-#     print(get_prices('cereal', '45052'))
-# #     # search_model = SearchModel(Term='milk', ZipCode='90001')
-# #     # search = SearchDomain.from_orm(search_model)
-# #     # data = fetch_best_prices(term=search.term, zip_code=search.zip_code)
-# #     # save_search_data(search, data)

@@ -1,20 +1,20 @@
+import re
 from flask import Blueprint, request, jsonify
-from backend.util import get_prices
+
+from .util import get_prices
 
 prices_bp = Blueprint('prices_bp', __name__)
 
 @prices_bp.route('/prices', methods=['POST'])
 def add_to_pricing_queue():
-    print('hello /prices post route activated')
-    
-    print(request.json)
-
-
     item_name = request.json.get('item_name')
     zip_code = request.json.get('zip_code')
     
-    if not item_name:
-        return jsonify({'message': 'Item name is required'}), 400
+    if not item_name or not zip_code:
+        return jsonify({'message': 'Item name and zip code are required'}), 400
+    
+    if not re.match(r'^\d{5}(-\d{4})?$', zip_code):
+        return jsonify({'message': 'Invalid zip code format'}), 400
     
     prices = get_prices(item_name, zip_code)
     if not prices:

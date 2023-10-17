@@ -7,33 +7,43 @@ from flask import Flask,send_from_directory, render_template
 from flask_cors import CORS
 from flask_migrate import Migrate
 
-from backend.database import db
-from backend.models import Search, Product, Store, StorePrice
-from backend.routes import prices_bp
+from .database import db
+from .models import Search, Product, Store, StorePrice
+from .routes import prices_bp
 
 # Initializing the Flask app and configuring CORS
+def create_app(testing: bool = False):
+    
+    app = Flask(__name__, static_folder="../frontend/build", static_url_path='/')
+    CORS(app)
+    
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = config('SECRET_KEY', default='dev_key')
+    debug_mode = config('FLASK_DEBUG', default='False', cast=bool)
 
-app = Flask(__name__, static_folder="../frontend/build", static_url_path='/')
-CORS(app)
+    if testing:
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/test_db'
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL').replace("postgres://", "postgresql://")
+
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    # Initialize the database with this app and Flask-Migrate
+    db.init_app(app)
+    migrate = Migrate(app, db)
+
+    # Registering the blueprint
+    app.register_blueprint(prices_bp)
+    
+    return app
 
 
-# Setting up logging
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+app = create_app()
 
-# setting debug to environmental variable
-debug_mode = config('FLASK_DEBUG', default='False', cast=bool)
+print(app.config['SQLALCHEMY_DATABASE_URI'])
 
-# App configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL').replace("postgres://", "postgresql://")
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Suppresses a warning and potential performance hit
-app.config['SECRET_KEY'] = config('SECRET_KEY', default='dev_key')
 
-# Initialize the database with this app and Flask-Migrate
-db.init_app(app)
-migrate = Migrate(app, db)
-
-# Registering the blueprint
-app.register_blueprint(prices_bp)
 
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
