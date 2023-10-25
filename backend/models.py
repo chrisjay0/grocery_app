@@ -33,6 +33,8 @@ class Store(db.Model):
     Name = db.Column(db.String(255))
     Address = db.Column(db.String(500))
     ZipCode = db.Column(db.String(10))
+    Lat = db.Column(db.Numeric(precision=9, scale=6))
+    Long = db.Column(db.Numeric(precision=9, scale=6))
     CreatedDate = db.Column(db.DateTime, default=datetime.utcnow)
     LastModified = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     product_prices = db.relationship("StorePrice", back_populates="store")
