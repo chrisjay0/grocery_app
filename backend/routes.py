@@ -13,8 +13,6 @@ def add_to_pricing_queue():
     item_name = request.json.get("item_name")
     zip_code = request.json.get("zip_code")
 
-    # update_stores(parse_stores(fetch_locations()))
-
     if not item_name or not zip_code:
         return jsonify({"message": "Item name and zip code are required"}), 400
 
