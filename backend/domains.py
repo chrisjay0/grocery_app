@@ -4,8 +4,7 @@ from typing import Optional
 import decimal
 
 
-
-from .models import Search, Store as StoreModel
+from backend.models import Search, Store as StoreModel
 
 
 # Domain dataclass for Product model
@@ -58,7 +57,7 @@ class StoreDomain:
     api_reference: str
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
-    
+
     @classmethod
     def from_orm(cls, orm: StoreModel) -> Optional["StoreDomain"]:
         if orm is None:
@@ -73,7 +72,7 @@ class StoreDomain:
             longitude=orm.Long,
             api_reference=orm.StoreAPIRef,
         )
-        
+
     def to_orm(self) -> StoreModel:
         return StoreModel(
             StoreID=self.id,
@@ -85,5 +84,3 @@ class StoreDomain:
             Long=self.longitude,
             StoreAPIRef=self.api_reference,
         )
-        
-        

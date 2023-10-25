@@ -5,23 +5,18 @@ from sqlalchemy.exc import SQLAlchemyError
 import logging
 import requests
 from decimal import Decimal
-from sqlalchemy import func
-import decimal
 
 
-from .models import (
+from backend.models import (
     Search as SearchModel,
     StorePrice,
     Product,
     Store,
     Store as StoreModel,
 )
-from .domains import SearchDomain, StoreDomain
-from .database import db
-from .services import fetch_best_prices
-
-from .database import db
-
+from backend.domains import SearchDomain, StoreDomain
+from backend.database import db
+from backend.services import fetch_best_prices
 
 
 R = 6371  # Radius of the Earth in kilometers
@@ -43,7 +38,7 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 class StoreUtils:
     @classmethod
     def get_closest_stores(
-        cls, lat: decimal.Decimal, lon: decimal.Decimal, limit: int = 3
+        cls, lat: Decimal, lon: Decimal, limit: int = 3
     ) -> List[StoreDomain]:
         """Get the closest stores to a given lat/lon"""
         try:
@@ -274,7 +269,9 @@ def save_search_data(
         session.close()
 
 
-async def get_prices(term: str, zip_code: str, lat: Decimal, lon: Decimal) -> List[dict]:
+async def get_prices(
+    term: str, zip_code: str, lat: Decimal, lon: Decimal
+) -> List[dict]:
     """
     Checks for matching fresh searches.
     - if fresh search found return prices in dict
@@ -396,70 +393,3 @@ def update_stores(stores: List[dict]) -> None:
     except Exception as e:
         print(e)
         session.rollback()
-
-
-# with app.app_context():
-
-#     url = "https://nominatim.openstreetmap.org/search?format=json&accept-language=en&zoom=3&postalcode=93401&country=united states"
-
-#     payload = {}
-#     headers = {}
-
-#     response = requests.request("GET", url, headers=headers, data=payload)
-#     data = response.json()[0]
-#     dic = {}
-#     dic['lat'] = data['lat']
-#     dic['lon'] = data['lon']
-
-#     # print(dic['lat'])
-#     # print(response.json())
-#     # print(response.json())
-
-#     # Haversine formula components
-#     R = 6371  # Radius of the Earth in kilometers
-
-#     def haversine(lat1, lon1, lat2, lon2):
-#         """Calculate the Haversine distance."""
-#         dlat = func.radians(lat2 - lat1)
-#         dlon = func.radians(lon2 - lon1)
-#         a = func.sin(dlat / 2) * func.sin(dlat / 2) + func.cos(func.radians(lat1)) * func.cos(func.radians(lat2)) * func.sin(dlon / 2) * func.sin(dlon / 2)
-#         c = 2 * func.atan2(func.sqrt(a), func.sqrt(1 - a))
-#         distance = R * c
-#         return distance
-
-#     # Given latitude and longitude
-#     given_lat = dic['lat']
-#     given_lon = dic['lon']
-
-#     # Create a session
-#     session = db.session
-
-#     # # Query to find the closest store
-#     # closest_store = session.query(Store).order_by(haversine(Store.Lat, Store.Long, given_lat, given_lon)).first()
-
-#     # Subquery for distance and row number
-#     subq = session.query(
-#         Store,
-#         haversine(Store.Lat, Store.Long, given_lat, given_lon).label("distance"),
-#         func.row_number().over(partition_by=Store.Chain, order_by=haversine(Store.Lat, Store.Long, given_lat, given_lon)).label("row_num")
-#     ).subquery()
-
-#     # Main query to get the three closest stores with unique "Chain"
-#     closest_stores = session.query(subq).filter(subq.c.row_num == 1).order_by(subq.c.distance).limit(3).all()
-
-#     for store in closest_stores:
-#         print(store.Name)
-
-
-#     # update_stores(parse_stores(fetch_locations()))
-
-#     # def get_country(lat, lon):
-#     #     url = f'https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=json&accept-language=en&zoom=3'
-#     #     try:
-#     #         result = requests.get(url=url)
-#     #         result_json = result.json()
-#     #         return result_json['display_name']
-#     #     except:
-#     #         return None
-
-#     # print(get_country(32.782023,35.478867)) # results in Israel
