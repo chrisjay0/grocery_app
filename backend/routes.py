@@ -1,8 +1,8 @@
 import re
 from flask import Blueprint, request, jsonify, session
+import asyncio
 
 from .util import get_prices, update_stores, get_lat_lon
-from .services import fetch_locations, parse_stores
 
 
 
@@ -31,7 +31,7 @@ def add_to_pricing_queue():
         
     print(f'lat: {lat}, lon: {lon}')
     
-    prices = get_prices(item_name, zip_code, lat, lon)
+    prices = asyncio.run(get_prices(item_name, zip_code, lat, lon))
     
     if not prices:
         return jsonify({'message': f'Prices for {item_name} could not be found'}), 404
@@ -60,7 +60,7 @@ def retrieve_prices():
     
     all_prices = {}
     for item in item_names:
-        item_prices = get_prices(item, zip_code, lat, lon)
+        item_prices = asyncio.run(get_prices(item, zip_code, lat, lon))
         if item_prices:
             all_prices[item] = item_prices
 
