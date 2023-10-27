@@ -8,35 +8,21 @@ Grocery shopping can be cumbersome, especially for those mindful of their budget
 
 ## Table of Contents
 
-- [Features](https://chat.openai.com/c/a006a96a-5a61-45a9-9259-a5a8461ad8b4#features)
-- [Technologies](https://chat.openai.com/c/a006a96a-5a61-45a9-9259-a5a8461ad8b4#technologies)
-- [Services and Resources](https://chat.openai.com/c/a006a96a-5a61-45a9-9259-a5a8461ad8b4#services-and-resources)
+- [Features](##features)
+- [Technologies](##technologies)
+- [Services and Resources](##services-and-resources)
 
 ## Features
 
 - **List Management**: Facilitates list creation, and editing.
-- **Backend Operations**: Provides real-time price checks as items are added.
+- **Real-Time Pricing**: Provides real-time price checks as items are added.
 - **Price Comparisons**: Enables users to see total costs at various stores, displayed in an organized manner.
 
 ## Technologies
 
-### Frontend:
+### Frontend: React / Material UI
 
-- **Framework**: React
-- **Libraries & Components**:
-    - `@mui/material`: UI library for React.
-    - `@mui/icons-material`: Icons library for React.
-    - `axios`: Used for making HTTP requests.
-
-### Backend:
-
-- **Framework**: Flask
-- **Libraries**:
-    - `flask_cors`: Handles Cross-Origin Resource Sharing.
-    - `flask_migrate`: Manages database migrations.
-    - `httpx`: Asynchronous HTTP client.
-    - `asyncio`: Handles asynchronous operations.
-- **Database**: SQLAlchemy (ORM)
+### Backend: Flask / SQLAlchemy (ORM) / Postgres
 
 ## Services and Resources
 
